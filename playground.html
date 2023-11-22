@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DALL-E-3 Image Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+
+        #image-container {
+            margin-top: 20px;
+        }
+
+        #prompt-input {
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        #api-key {
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        #generate-btn {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>DALL-E-3 Image Generator</h1>
+
+    <label for="api-key">Enter your openAI key:</label>
+    <input type="text" id="api-key" placeholder="Enter your openAI key">
+    <br></br>
+    <label for="prompt-input">Enter a prompt:</label>
+    <input type="text" id="prompt-input" placeholder="Enter your prompt">
+    <button id="generate-btn" onclick="generateImage()">Generate Image</button>
+
+    <div id="image-container"></div>
+
+    <script>
+        function generateImage() {
+            const promptInput = document.getElementById('prompt-input').value;
+            const imageContainer = document.getElementById('image-container');
+            const apiKey = document.getElementById('api-key').value;
+
+            // Replace 'YOUR_DALL_E_API_KEY' with your actual DALL-E-3 API key
+            const apiUrl = 'https://api.openai.com/v1/images/generations';
+
+            fetch(apiUrl, {
+                method: 'POST',
+                body: JSON.stringify({
+                    "model": "dall-e-3",
+                    "prompt": promptInput,
+                    "n": 1,
+                    "size": "1024x1024",
+                    "response_format": "b64_json"
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const imageUrl = data.data[0].b64_json;
+                const revisedPrompt = data.data[0].revised_prompt;
+
+                // Display the generated image
+                imageContainer.innerHTML = `<img src="data:image/jpeg;base64,${imageUrl}" alt="Generated Image">`;
+            })
+            .catch(error => {
+                console.error('Error fetching DALL-E-3 API:', error);
+                imageContainer.innerHTML = '<p>Error generating image. Please try again.</p>';
+            });
+        }
+    </script>
+</body>
+</html>
